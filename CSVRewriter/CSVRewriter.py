@@ -6,9 +6,8 @@ import os
 class CSVRewriter():
     def __init__(self, filename:str, correct_headers:list[str]):
         self.filename = filename
-        self.correct_headers = correct_headers
         self.file_data = self.sanitize_csv_inputs()
-        self.correct_headers = self.santize_headers_inputs()
+        self.correct_headers = self.santize_headers_inputs(correct_headers)
                
     def sanitize_csv_inputs(self)->DataFrame:
         """Sanitizes the inputs and catches errors to put out user friendly messages
@@ -18,25 +17,33 @@ class CSVRewriter():
         """
         try:
             return pd.read_csv(self.filename, header=None)
-        except FileNotFoundError:
-            print(f"File '{self.filename}' not found. Check your csv directory input")
-            os._exit(1)
-        except ValueError:
-            print(f"File '{self.filename}' is not a valid CSV file. {type(self.filename)} is not a valid type. Try a string.")
-            os._exit(1)
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(f"File '{self.filename}' not found. Check your csv directory input") from exc
+        except ValueError as exc:
+            raise ValueError(f"File '{self.filename}' is not a valid CSV file. {type(self.filename)} is not a valid type. Try a string.") from exc
         except Exception as e:
             print(f"An error occurred: {e}")
-            os._exit(1)
+            raise e
             
-    def santize_headers_inputs(self)-> list[str]:
-        if not isinstance(self.correct_headers, list):
-            print(f"Headers must be a list of strings. {type(self.correct_headers)} is not a valid type.")
-            os._exit(1)
-        headers_bool = [isinstance(x, str) for x in self.correct_headers]
+    def santize_headers_inputs(self, correct_headers: list[str])-> list[str]:
+        """sanitize_headers_inputs ensures that the incoming is a list of strings, else raise errors
+
+        Args:
+            correct_headers (list[str]): Incoming headers from outside
+
+        Raises:
+            TypeError: Error if data incoming is not a list
+            ValueError: Error if any of the headers are not strings
+
+        Returns:
+            list[str]: We've checked and the headers work
+        """
+        if not isinstance(correct_headers, list):
+            raise TypeError(f"Headers must be a list of strings. {type(correct_headers)} is not a valid type.")
+        headers_bool = [isinstance(x, str) for x in correct_headers]
         if False in headers_bool:
-            print("One or more headers are not strings. Please correct and try again.")
-            os._exit(1)
-        return self.correct_headers
+            raise ValueError("One or more headers are not strings. Please correct and try again.")
+        return correct_headers
     
     def get_index_of_headers(self)->int:
         """We want to get the index of the row that contains the headers. A bit of guesswork here,
@@ -51,7 +58,7 @@ class CSVRewriter():
         indexlist = []
         for row in boolean_lists:
             indexlist.append(len([x for x in row if x is True]))
-        if len(set(indexlist)) == 0:
+        if all(x == 0 for x in indexlist):
             print("No headers found in the CSV file")
             return None
         return pd.Series(indexlist).idxmax()
@@ -130,9 +137,11 @@ class CSVRewriter():
             self.file_data.drop(self.file_data.index[row], inplace=True)
         return self.file_data
     
-    def to_csv(self)->None:
+    def to_csv(self, new_filename:str)->None:
         """Writes the updated DataFrame to a new CSV file
         """
+        if new_filename.endswith(".csv"):
+            new_filename = new_filename[:-4]
         updated_df = self.rename_columns()
-        updated_df.to_csv(f"{self.filename}_updated.csv", index=False)
+        updated_df.to_csv(f"{new_filename}.csv", index=False)
         

@@ -2,3 +2,4 @@
 *virtualenv*
 *venv*
 *.vscode/*
+*.pytest_cache/*
