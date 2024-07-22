@@ -1,0 +1,9 @@
+Using the given main.py as a starting point, Create a Python class named CSVRewriter to rewrite a csv file with valid headers and rows.
+The class should be initialized with a CSV file name and a list of valid column names
+The class should attempt to match column names that are "close enough" to valid names
+The class should have the following methods:
+- match_columns: Matches the file's column names to the list of valid column names. Returns the results.
+- rename_columns: Renames the file's columns to valid column names
+- drop_rows: Drops the given row numbers
+- to_csv: Writes the updated file
+Use the class to rewrite the provided input file
