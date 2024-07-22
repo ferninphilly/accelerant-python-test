@@ -30,5 +30,4 @@ if __name__ == "__main__":
     f = 'imput.csv'
     cars = ['Alligator', 'Bear', 'Cat', 'Dog', 'Elephant', 'Frog', 'Giraffe', 'Horse', 'Iguana', "Jaguar", "Kangaroo"]
     rewriter = CSVRewriter(f, cars)
-    rewriter.rename_columns()
     rewriter.to_csv()
