@@ -70,7 +70,7 @@ class CSVRewriter():
         headers_without_improper_types = []
         for x in headers_unclean:
             if isinstance(x, str):
-                headers_without_improper_types.append(x.strip())
+                headers_without_improper_types.append(x.strip().title())
             else:
                 headers_without_improper_types.append("Unknown")
         for idx, x in enumerate(headers_without_improper_types):
@@ -98,8 +98,10 @@ class CSVRewriter():
                     break        
         return headers_from_file
 
-    def rename_columns(self)->None:
+    def rename_columns(self)->DataFrame:
         """Renames the columns of the DataFrame to the correct headers
+        Returns:
+            DataFrame: The updated DataFrame with the correct headers
         """
         headers_index = self.get_index_of_headers()
         if headers_index is None:
@@ -114,7 +116,7 @@ class CSVRewriter():
         except ValueError:
             print("The number of columns in the CSV file does not match the number of headers provided. Please check your inputs.")
             os._exit(1)
-        self.file_data = updated_file_data
+        return updated_file_data
     
     def drop_rows(self, rows_to_drop:list[int])->DataFrame:
         """Drops rows from the read csv frame based on inputs
@@ -131,6 +133,6 @@ class CSVRewriter():
     def to_csv(self)->None:
         """Writes the updated DataFrame to a new CSV file
         """
-        self.rename_columns()
-        self.file_data.to_csv(f"{self.filename}_updated.csv", index=False)
+        updated_df = self.rename_columns()
+        updated_df.to_csv(f"{self.filename}_updated.csv", index=False)
         

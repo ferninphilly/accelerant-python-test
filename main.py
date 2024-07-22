@@ -31,4 +31,4 @@ if __name__ == "__main__":
     cars = ['Alligator', 'Bear', 'Cat', 'Dog', 'Elephant', 'Frog', 'Giraffe', 'Horse', 'Iguana', "Jaguar", "Kangaroo"]
     rewriter = CSVRewriter(f, cars)
     rewriter.rename_columns()
-    rewriter.write_to_file('output.csv')
+    rewriter.to_csv()
